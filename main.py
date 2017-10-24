@@ -13,7 +13,7 @@ cropping = False
 import matplotlib.pyplot as plt
 global contours
 
-image = sys.argv[1]
+image2 = sys.argv[1]
 
 # initialize the list of reference points and boolean indicating
 # whether cropping is being performed or not
@@ -22,6 +22,7 @@ answer = []
 cords=[]
 cords1 = []
 groupLocs = []
+images = []
 cropping = False
 d = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'0':0,'A':11,'B':13,'C':14,'D':15,'E':16,'F':17,'G':18,'H':19,'I':20,'J':21,'K':22,'L':23,'M':24,'N':25,'O':26,'P':27,'Q':28,'R':29,'S':30,'T':31,'U':32,'V':33,'W':34,'X':35,'Y':36,'Z':37}
 blank_image = 0
@@ -53,7 +54,17 @@ def guess(chars,cords,cords1):
 def findRegions(img):
 	global groupLocs
 
-	ref = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV |
+	image = cv2.imread("testing.jpg")
+	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+	height, width = image.shape[:2]
+	if(height>1000 and width >1000):
+	    width=int(round(width*0.3))
+	    height=int(round(height*0.3))
+
+	image = cv2.resize(image, (width,height))
+
+	ref = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY_INV |
 		cv2.THRESH_OTSU)[1]
 
 	refCnts = cv2.findContours(ref.copy(), cv2.RETR_EXTERNAL,
@@ -84,7 +95,7 @@ def findRegions(img):
 	groupCnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL,
 		cv2.CHAIN_APPROX_SIMPLE)
 	groupCnts = groupCnts[0] if imutils.is_cv2() else groupCnts[1]
-
+	groupLocs = []
 
 	# loop over the group contours
 	for (i, c) in enumerate(groupCnts):
@@ -94,13 +105,12 @@ def findRegions(img):
 		# only accept the contour region as a grouping of characters if
 		# the ROI is sufficiently large
 		if w > 5 and h > 15 and h<100 :
-			crop = img[y:y+h,x:x+w]
-			groupLocs.append(crop)
+			groupLocs.append((x, y, w, h))
 			cv2.rectangle(blank_image,(x,y),(x+w,y+h),(255,255,255),1)
 
 def findCharacters(img):
-    global cords,blank_image,cnts
-    images=[]
+    global cords,cords1,blank_image,cnts,images
+
 
     thresh = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
     cv2.THRESH_BINARY,11,8)
@@ -120,7 +130,7 @@ def findCharacters(img):
         x,y,w,h = rect
 
 
-        if(w*h>500 and w*h<1000):
+        if(w*h>450	 and w*h<1000):
 
         #cords.sort()
             crop = img[y:y+h,x:x+w]
@@ -150,7 +160,7 @@ def findCharacters(img):
 
 
 
-    guess(images,cords,cords1)
+
     #cv2.imwrite("Characters.jpg",img)
 #cropImageOnReceipt(image)
 
@@ -158,9 +168,9 @@ def findCharacters(img):
 # load the image, clone it, and setup the mouse callback function
 
 
-image = cv2.imread(image)
+image = cv2.imread(image2)
 image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-image1 = image.copy()
+
 height, width = image.shape[:2]
 if(height>1000 and width >1000):
     width=int(round(width*0.3))
@@ -172,10 +182,12 @@ cv2.waitKey(0)
 findCharacters(image)
 cv2.imshow("Characters",image)
 cv2.waitKey(0)
-findRegions(image1)
+guess(images,cords,cords1)
+findRegions(image2)
 
 cv2.imshow("Newly Printed",blank_image)
 cv2.waitKey(0)
+cv2.imwrite("image.jpg",blank_image)
 
 #cv2.imshow("Text on image",image)
 #cv2.waitKey(0)

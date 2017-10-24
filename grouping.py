@@ -65,3 +65,4 @@ for (i, c) in enumerate(groupCnts):
 groupLocs = sorted(groupLocs, key=lambda x:x[0])
 cv2.imshow("groups",image)
 cv2.waitKey(0)
+cv2.imwrite("proper.jpg",image)
