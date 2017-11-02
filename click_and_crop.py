@@ -50,9 +50,6 @@ def findCharacters(img):
     thresh = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
     cv2.THRESH_BINARY,11,8)
 
-    cv2.imshow("Thing",thresh)
-
-
     cv2.waitKey(0)
     contours,hierarchy = cv2.findContours(thresh,cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     count =0
