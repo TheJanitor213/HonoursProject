@@ -12,7 +12,7 @@ cropping = False
 import pdb
 import matplotlib.pyplot as plt
 global contours
-
+from correction import correction
 image2 = sys.argv[1]
 
 # initialize the list of reference points and boolean indicating
@@ -29,7 +29,8 @@ d = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'0':0,'A':11,'B
 blank_image = 0
 cnts=[]
 wordImages = []
-
+images=[]
+words = []
 def findRegions(img):
 	global groupLocs,wordImages
 	image = cv2.imread("testing.jpg")
@@ -88,7 +89,6 @@ def findRegions(img):
 
 def findCharacters(img):
 	global cords,cords1
-	images =[]
 
 	thresh = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
 				cv2.THRESH_BINARY,11,8)
@@ -118,20 +118,20 @@ def findCharacters(img):
 			images.append(crop.flatten())
 			#cv2.imwrite("characters/1new-image-"+str(count)+".jpg",crop)
 			#cv2.putText(img,str(a), (x,y), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,255),2)
-			#cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),1)
+			cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),1)
+
 			count+=1
-#print(len(images))
-	guess(images)
-	#print("this")
+
+	return images
+
+
 
 
 def guess(chars):
 
-	print("tis")
-
 	with open('my_dumped_classifier.pkl', 'rb') as fid:
 		clf = cPickle.load(fid)
-
+	answer=[]
 	for i in range(len(chars)):
 
 		testArray = np.array(chars[i],dtype="float32")
@@ -141,15 +141,16 @@ def guess(chars):
 		testArray=testArray.reshape(-1,784)
 
 
-        predictions = clf.predict(testArray)
-        for key in d:
+		predictions = clf.predict(testArray)
+		for key in d:
 
-            for x in np.nditer(predictions):
-                if(d[key]==x.astype(int)):
+			for x in np.nditer(predictions):
+				if(d[key]==x.astype(int)):
+
 					#cv2.putText(blank_image,key, (cords[i],cords1[i]), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
 					answer.append(key)
-
-	return answer
+	answerString = ''.join(answer)
+	return answerString
 
 
 image = cv2.imread(image2)
@@ -169,14 +170,25 @@ image = cv2.resize(image, (width,height))
 
 findRegions(image)
 
-# 	findCharacters(wordImages[0])
-for i in range (1,len(wordImages)-1):
-	answer=[]
-	findCharacters(wordImages[i])
-	print(answer)
-	#print(wordImages[i])
-	#print(wordCharacters)
+#findCharacters(wordImages[0])
+for i in range (0,len(wordImages)-1):
+	images=[]
 
+	answer=[]
+	if(len(wordImages[i]>0)):
+		#print(wordImages[i])
+
+		wordCharacters.append(findCharacters(wordImages[i]))
+	#print(wordCharacters)
+	#print(answer)
+	#print(wordImages[i])
+
+for i in range(len(wordCharacters)):
+	if(len(wordCharacters[i])>0):
+		words.append(guess(wordCharacters[i]))
+
+for i in words:
+	print(correction(i))
 
 #for x in wordCharacters:
 #	print(guess(x))
