@@ -13,6 +13,7 @@ answer = []
 cords=[]
 cords1 = []
 cropping = False
+images=[]
 d = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'0':0,'A':11,'B':13,'C':14,'D':15,'E':16,'F':17,'G':18,'H':19,'I':20,'J':21,'K':22,'L':23,'M':24,'N':25,'O':26,'P':27,'Q':28,'R':29,'S':30,'T':31,'U':32,'V':33,'W':34,'X':35,'Y':36,'Z':37}
 words = []
 def guess(imgs):
@@ -30,8 +31,6 @@ def guess(imgs):
             if(d[key]==x.astype(int)):
 
                 answer.append(key)
-				print(x)
-
 
 
 '''def sortContours(cnts):
@@ -44,15 +43,14 @@ def guess(imgs):
 '''
 
 def findCharacters(img):
-    global x,cords
-    images=[]
+    global x,cords,images
+
 
     thresh = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
     cv2.THRESH_BINARY,11,8)
 
-    cv2.waitKey(0)
     contours,hierarchy = cv2.findContours(thresh,cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    count =0
+
 
     img1 = img.copy()
     img2 = img.copy()
@@ -89,8 +87,8 @@ def findCharacters(img):
         #cv2.imwrite("characters/1new-image-"+str(count)+".jpg",crop)
         cv2.putText(img,str(a), (x,y), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,255),2)
         cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),1)
-        guess(crop.flatten())
-        count+=1
+        images.append(crop.flatten())
+
 
     cv2.imshow("Characters",img)
 
@@ -158,6 +156,7 @@ if len(refPt) == 2:
 	#cv2.imshow("ROI", roi)
 	cv2.waitKey(0)
 findCharacters(roi)
+guess(images)
 image = cv2.imread(args["image"])
 height, width = image.shape[:2]
 if(height>1000 and width >1000):

@@ -12,7 +12,7 @@ cropping = False
 import pdb
 import matplotlib.pyplot as plt
 global contours
-from correction import correction
+
 image2 = sys.argv[1]
 
 # initialize the list of reference points and boolean indicating
@@ -188,7 +188,7 @@ for i in range(len(wordCharacters)):
 		words.append(guess(wordCharacters[i]))
 
 for i in words:
-	print(correction(i))
+	print(i)
 
 #for x in wordCharacters:
 #	print(guess(x))
