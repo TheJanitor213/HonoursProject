@@ -13,12 +13,12 @@ answer = []
 cords=[]
 cords1 = []
 cropping = False
-d = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'0':0,'A':10,'B':11,'C':12,'D':13,'E':14,'F':15,'G':16,'H':17,'I':18,'J':19,'K':20,'L':21,'M':22,'N':23,'O':24,'P':25,'Q':26,'R':27,'S':28,'T':29,'U':30,'V':31,'W':32,'X':33,'Y':34,'Z':35,'a': 36,'b': 37,'c': 38,'d': 39,'e': 40,'f': 41,'g': 42,'h': 43,'i':44,'j': 45,'k': 46,'l': 47,'m': 48,'n': 49,'o': 50,'p': 51,'q': 52,'r': 53,'s': 54,'t': 55,'u': 56,'v': 57,'w': 58,'x': 59,'y': 60,'z': 61}
+d = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'0':0,'A':10,'B':11,'C':12,'D':13,'E':14,'F':15,'G':16,'H':17,'I':18,'J':19,'K':20,'L':21,'M':22,'N':23,'O':24,'P':25,'Q':26,'R':27,'S':28,'T':29,'U':30,'V':31,'W':32,'X':33,'Y':34,'Z':35}
 blank_image = 0
 cnts=[]
 def guess(chars,cords,cords1):
     #global answer
-    with open('myNewClassifier.pkl', 'rb') as fid:
+    with open('my_dumped_classifier.pkl', 'rb') as fid:
         clf = cPickle.load(fid)
 
     for i in range(len(cnts)):
@@ -34,8 +34,9 @@ def guess(chars,cords,cords1):
                 if(d[key]==x.astype(int)):
 
 
-					cv2.putText(blank_image,key, (cords[i],cords1[i]), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
-					#cv2.imwrite("characters/"+str(d[key]-2)+"/img2-"+str(i)+".jpg",cnts[i].reshape(28,28))
+					#cv2.putText(blank_image,key, (cords[i],cords1[i]), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
+
+					cv2.imwrite("characters/"+str(d[key]-2)+"/img4234-"+str(i)+".jpg",cnts[i].reshape(28,28))
 					#answer.append(key)
 					#print(key)
 
@@ -68,7 +69,7 @@ def findCharacters(img):
 
             crop = cv2.resize(crop,(28,28))
             crop = cv2.adaptiveThreshold(crop,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
-                    cv2.THRESH_BINARY,11,1)
+                    cv2.THRESH_BINARY,11,5)
             cnts.append(crop.flatten())
             cords.append(x)
             cords1.append(y)
@@ -101,20 +102,12 @@ if(height>1000 and width >1000):
 
     width=int(round(width*0.3))
     height=int(round(height*0.3))
-'''
-rows,cols = image.shape
 
-M = cv2.getRotationMatrix2D((cols/2,rows/2),-90,1)
-newimage = cv2.warpAffine(image,M,(cols,rows))
-'''
 image = cv2.resize(image, (width,height))
 cv2.imshow("Original",image)
 cv2.waitKey(0)
 findCharacters(image)
 cv2.imshow("Characters",image)
-cv2.waitKey(0)
-
-cv2.imshow("Newly Printed",blank_image)
 cv2.waitKey(0)
 
 #cv2.putText(image,''.join(finalAnswer1), refPt[1], cv2.FONT_HERSHEY_SIMPLEX, 5,(180,0,100),2)

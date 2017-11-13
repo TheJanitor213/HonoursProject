@@ -20,7 +20,7 @@ image2 = sys.argv[1]
 refPt = []
 answer = []
 cords=[]
-cords1 = []
+cords1=[]
 groupLocs = []
 chars1 = []
 wordCharacters = []
@@ -88,7 +88,8 @@ def findRegions(img):
 	#cv2.waitKey(0)
 
 def findCharacters(img):
-	global cords,cords1
+	global cords
+	cords1 = []
 
 	thresh = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
 				cv2.THRESH_BINARY,11,8)
@@ -112,15 +113,14 @@ def findCharacters(img):
 			crop = cv2.adaptiveThreshold(crop,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
 					cv2.THRESH_BINARY,11,0)
 
-			cords.append(x)
-			cords1.append(y)
+			cords1.append(x)
+
 
 			images.append(crop.flatten())
 			#cv2.imwrite("characters/1new-image-"+str(count)+".jpg",crop)
 			#cv2.putText(img,str(a), (x,y), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,255),2)
-			cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),1)
-
-			count+=1
+	if(len(cords1)>0):
+		cords.append(cords1)
 
 	return images
 
@@ -129,7 +129,7 @@ def findCharacters(img):
 
 def guess(chars):
 
-	with open('my_dumped_classifier.pkl', 'rb') as fid:
+	with open('classifier.pkl', 'rb') as fid:
 		clf = cPickle.load(fid)
 	answer=[]
 	for i in range(len(chars)):
@@ -149,8 +149,7 @@ def guess(chars):
 
 					#cv2.putText(blank_image,key, (cords[i],cords1[i]), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
 					answer.append(key)
-	answerString = ''.join(answer)
-	return answerString
+	return answer
 
 
 image = cv2.imread(image2)
@@ -187,9 +186,12 @@ for i in range(len(wordCharacters)):
 	if(len(wordCharacters[i])>0):
 		words.append(guess(wordCharacters[i]))
 
-for i in words:
-	print(i)
 
+for i in range(len(words)):
+	grouped = zip(cords[i],words[i])
+	sorting=sorted(grouped)
+	finalSorting = [point[1] for point in sorting]
+	print(''.join(finalSorting))
 #for x in wordCharacters:
 #	print(guess(x))
 #for j in range(len(wordCharacters)):

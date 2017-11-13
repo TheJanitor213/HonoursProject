@@ -110,7 +110,7 @@ for i in F:
 clf = SVC()
 clf.fit(X,Y)
 
-with open('myNewClassifier.pkl', 'wb') as fid:
+with open('classifier.pkl', 'wb') as fid:
     cPickle.dump(clf, fid)
 
 print(clf.score(testX,E))

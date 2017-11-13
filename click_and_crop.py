@@ -30,7 +30,8 @@ def guess(imgs):
         for x in np.nditer(predictions):
             if(d[key]==x.astype(int)):
 
-                answer.append(key)
+				answer.append(key)
+				cv2.imwrite("characters/img4234-"+str(i)+".jpg",imgs.reshape(28,28))
 
 
 '''def sortContours(cnts):
