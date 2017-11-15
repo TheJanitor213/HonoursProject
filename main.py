@@ -33,17 +33,10 @@ images=[]
 words = []
 def findRegions(img):
 	global groupLocs,wordImages
-	image = cv2.imread("testing.jpg")
-	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-	height, width = image.shape[:2]
-	if(height>1000 and width >1000):
-	    width=int(round(width*0.3))
-	    height=int(round(height*0.3))
 
-	image = cv2.resize(image, (width,height))
 
-	ref = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY_INV |
+	ref = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV |
 		cv2.THRESH_OTSU)[1]
 
 	refCnts = cv2.findContours(ref.copy(), cv2.RETR_EXTERNAL,
@@ -63,13 +56,13 @@ def findRegions(img):
 	gradX = cv2.morphologyEx(gradX, cv2.MORPH_CLOSE, rectKernel)
 	thresh = cv2.threshold(gradX, 0, 255,
 		cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-
+	cv2.imshow("this",thresh)
+	cv2.waitKey(0)
 
 	groupCnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL,
 		cv2.CHAIN_APPROX_SIMPLE)
 	groupCnts = groupCnts[0] if imutils.is_cv2() else groupCnts[1]
 
-	groupLocs = []
 
 	# loop over the group contours
 	for c in (groupCnts):
@@ -79,13 +72,12 @@ def findRegions(img):
 
 		if w > 5 and h > 15 and h<100 :
 			crop = img[y-20:y+h+20,x-20:x+w+20]
-			#groupLocs.append((x, y, w, h))
+
 			#cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,0),1)
 			np.unpackbits(crop)
 			if(crop!=""):
 				wordImages.append(crop)
-	#cv2.imshow("this",img)
-	#cv2.waitKey(0)
+
 
 def findCharacters(img):
 	global cords
@@ -103,9 +95,9 @@ def findCharacters(img):
 		x,y,w,h = rect
 
 
-		if(w*h>450	 and w*h<1000):
+		if(w*h>450	 and w*h<1300):
 			crop = img[y:y+h,x:x+w]
-            #cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),1)
+			#cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),1)
             #crop = cv2.resize(crop, (28,28))
             #cv2.imwrite("training-images/image-"+str(count)+".jpg",crop)
 			count+=1
@@ -119,6 +111,8 @@ def findCharacters(img):
 			images.append(crop.flatten())
 			#cv2.imwrite("characters/1new-image-"+str(count)+".jpg",crop)
 			#cv2.putText(img,str(a), (x,y), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,255),2)
+	cv2.imshow("this",img)
+	cv2.waitKey(0)
 	if(len(cords1)>0):
 		cords.append(cords1)
 
@@ -129,7 +123,7 @@ def findCharacters(img):
 
 def guess(chars):
 
-	with open('classifier.pkl', 'rb') as fid:
+	with open('my_dumped_classifier.pkl', 'rb') as fid:
 		clf = cPickle.load(fid)
 	answer=[]
 	for i in range(len(chars)):

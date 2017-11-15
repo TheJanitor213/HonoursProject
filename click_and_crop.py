@@ -63,7 +63,7 @@ def findCharacters(img):
     for i in range(len(contours)):
         rect = cv2.boundingRect(contours[i])
         x,y,w,h = rect
-        if(w*h>400 and w*h<1000):
+        if(w*h>500 and w*h<1300):
             cnts.append(contours[i])
             cords1.append(rect)
             cords.append(x)
