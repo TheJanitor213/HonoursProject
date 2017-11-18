@@ -7,12 +7,13 @@ import numpy as np
 from imutils import contours
 import imutils
 import sys
-refPt = []
-cropping = False
+import math as Math
 import pdb
 import matplotlib.pyplot as plt
+from difflib import SequenceMatcher
 global contours
-
+refPt = []
+cropping = False
 image2 = sys.argv[1]
 
 # initialize the list of reference points and boolean indicating
@@ -35,8 +36,10 @@ def findRegions(img):
 	global groupLocs,wordImages
 
 
+	thresh1 = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
+				cv2.THRESH_BINARY,11,8)
 
-	ref = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV |
+	ref = cv2.threshold(thresh1, 0, 255, cv2.THRESH_BINARY_INV |
 		cv2.THRESH_OTSU)[1]
 
 	refCnts = cv2.findContours(ref.copy(), cv2.RETR_EXTERNAL,
@@ -56,8 +59,6 @@ def findRegions(img):
 	gradX = cv2.morphologyEx(gradX, cv2.MORPH_CLOSE, rectKernel)
 	thresh = cv2.threshold(gradX, 0, 255,
 		cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-	cv2.imshow("this",thresh)
-	cv2.waitKey(0)
 
 	groupCnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL,
 		cv2.CHAIN_APPROX_SIMPLE)
@@ -75,7 +76,8 @@ def findRegions(img):
 
 			#cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,0),1)
 			np.unpackbits(crop)
-			if(crop!=""):
+
+			if(crop.size):
 				wordImages.append(crop)
 
 
@@ -111,8 +113,7 @@ def findCharacters(img):
 			images.append(crop.flatten())
 			#cv2.imwrite("characters/1new-image-"+str(count)+".jpg",crop)
 			#cv2.putText(img,str(a), (x,y), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,255),2)
-	cv2.imshow("this",img)
-	cv2.waitKey(0)
+
 	if(len(cords1)>0):
 		cords.append(cords1)
 
@@ -145,6 +146,8 @@ def guess(chars):
 					answer.append(key)
 	return answer
 
+def correctWords(a,b):
+    return SequenceMatcher(None, a, b).ratio()
 
 image = cv2.imread(image2)
 image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -180,12 +183,25 @@ for i in range(len(wordCharacters)):
 	if(len(wordCharacters[i])>0):
 		words.append(guess(wordCharacters[i]))
 
-
+itemsBought = []
 for i in range(len(words)):
 	grouped = zip(cords[i],words[i])
 	sorting=sorted(grouped)
 	finalSorting = [point[1] for point in sorting]
-	print(''.join(finalSorting))
+
+	with open("items.txt", "r") as ifile:
+		for line in ifile:
+			if((correctWords(''.join(finalSorting),line))>0.35):
+				if line not in itemsBought:
+					itemsBought.append(line)
+total =0
+for i in itemsBought:
+	[int(s) for y in i.split(' ') if y.isdigit() ]
+	total +=float(y)
+print(itemsBought)
+print("R{:0.2f}\n".format(total))
+
+	#print(''.join(finalSorting))
 #for x in wordCharacters:
 #	print(guess(x))
 #for j in range(len(wordCharacters)):
