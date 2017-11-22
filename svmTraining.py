@@ -8,6 +8,10 @@ import glob
 
 from skimage.io import imread
 from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.datasets import load_iris
+from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import GridSearchCV
 # Data loading and preprocessing
 import os
 import re
@@ -107,10 +111,15 @@ for i in F:
     # cv2.imshow("Thing",i.reshape(28,28))
     # cv2.waitKey(0)
 #
+C_range = np.logspace(-2, 10, 13)
+gamma_range = np.logspace(-9, 3, 13)
+param_grid = dict(gamma=gamma_range, C=C_range)
+cv = StratifiedShuffleSplit(n_splits=5, test_size=0.2, random_state=42)
+grid = GridSearchCV(SVC(), param_grid=param_grid, cv=cv)
 clf = SVC()
-clf.fit(X,Y)
+grid.fit(X,Y)
 
-with open('classifier.pkl', 'wb') as fid:
-    cPickle.dump(clf, fid)
+with open('classif.pkl', 'wb') as fid:
+    cPickle.dump(grid, fid)
 
-print(clf.score(testX,E))
+print(grid.score(testX,E))

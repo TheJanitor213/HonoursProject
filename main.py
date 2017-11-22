@@ -26,20 +26,25 @@ groupLocs = []
 chars1 = []
 wordCharacters = []
 cropping = False
-d = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'0':0,'A':11,'B':13,'C':14,'D':15,'E':16,'F':17,'G':18,'H':19,'I':20,'J':21,'K':22,'L':23,'M':24,'N':25,'O':26,'P':27,'Q':28,'R':29,'S':30,'T':31,'U':32,'V':33,'W':34,'X':35,'Y':36,'Z':37}
+d = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'A':10,'B':11,'C':12,'D':13,'E':14,'F':15,'G':16,'H':17,'I':18,'J':19,'K':20,'L':21,'M':22,'N':23,'O':24,'P':25,'Q':26,'R':27,'S':28,'T':29,'U':30,'V':31,'W':32,'X':33,'Y':34,'Z':35}
 blank_image = 0
 cnts=[]
 wordImages = []
 images=[]
 words = []
+
+'''
+Adapted from a tutorial on PyImageSearch. https://www.pyimagesearch.com/2015/11/30/detecting-machine-readable-zones-in-passport-images/
+'''
+
 def findRegions(img):
 	global groupLocs,wordImages
 
 
-	thresh1 = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
-				cv2.THRESH_BINARY,11,8)
+	#thresh1 = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
+		#		cv2.THRESH_BINARY,11,15)
 
-	ref = cv2.threshold(thresh1, 0, 255, cv2.THRESH_BINARY_INV |
+	ref = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV |
 		cv2.THRESH_OTSU)[1]
 
 	refCnts = cv2.findContours(ref.copy(), cv2.RETR_EXTERNAL,
@@ -74,7 +79,7 @@ def findRegions(img):
 		if w > 5 and h > 15 and h<100 :
 			crop = img[y-20:y+h+20,x-20:x+w+20]
 
-			#cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,0),1)
+			cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,0),1)
 			np.unpackbits(crop)
 
 			if(crop.size):
@@ -85,6 +90,7 @@ def findCharacters(img):
 	global cords
 	cords1 = []
 
+	#finding
 	thresh = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
 				cv2.THRESH_BINARY,11,8)
 
@@ -124,7 +130,7 @@ def findCharacters(img):
 
 def guess(chars):
 
-	with open('my_dumped_classifier.pkl', 'rb') as fid:
+	with open('classifier.pkl', 'rb') as fid:
 		clf = cPickle.load(fid)
 	answer=[]
 	for i in range(len(chars)):
@@ -195,12 +201,16 @@ for i in range(len(words)):
 				if line not in itemsBought:
 					itemsBought.append(line)
 total =0
+
 for i in itemsBought:
 	[int(s) for y in i.split(' ') if y.isdigit() ]
 	total +=float(y)
-print(itemsBought)
-print("R{:0.2f}\n".format(total))
-
+print("Items Purchased:\n")
+for i in itemsBought:
+	print(i)
+print("Total: R{:0.2f}\n".format(total))
+cv2.imshow("original",image)
+cv2.waitKey(0)
 	#print(''.join(finalSorting))
 #for x in wordCharacters:
 #	print(guess(x))
@@ -208,7 +218,7 @@ print("R{:0.2f}\n".format(total))
 	#cv2.imshow("image",wordCharacters[j].flatten())
 #	cv2.waitKey(0)
 	#print(guess(wordCharacters[j]))
-
+cv2.imwrite("regions.jpg",image)
 
 #cv2.imshow("Newly Printed",blank_image)
 #cv2.waitKey(0)
