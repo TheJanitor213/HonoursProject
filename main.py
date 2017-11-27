@@ -190,6 +190,7 @@ for i in range(len(wordCharacters)):
 		words.append(guess(wordCharacters[i]))
 
 itemsBought = []
+
 for i in range(len(words)):
 	grouped = zip(cords[i],words[i])
 	sorting=sorted(grouped)
