@@ -14,7 +14,6 @@ def input(*args):
 
 
 def run():
-    print(filename)
     os.system("python main.py "+ filename)
 root = Tk()
 root.title("Image Processing")
