@@ -15,6 +15,7 @@ cords1 = []
 cropping = False
 images=[]
 
+#Finding characters in each image and 
 def findCharacters(img):
 	global x,cords,images
 	count=0
