@@ -11,6 +11,9 @@ import math as Math
 import pdb
 import matplotlib.pyplot as plt
 from difflib import SequenceMatcher
+import subprocess
+import sys
+import difflib
 global contours
 refPt = []
 cropping = False
@@ -41,12 +44,13 @@ def findRegions(img):
 	global groupLocs,wordImages
 
 
-	#thresh1 = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
-		#		cv2.THRESH_BINARY,11,15)
+	thresh1 = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
+				cv2.THRESH_BINARY,11,17)
 
-	ref = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV |
+	ref = cv2.threshold(thresh1, 0, 255, cv2.THRESH_BINARY_INV |
 		cv2.THRESH_OTSU)[1]
-
+	cv2.imshow("Thresh",ref)
+	cv2.waitKey(0)
 	refCnts = cv2.findContours(ref.copy(), cv2.RETR_EXTERNAL,
 		cv2.CHAIN_APPROX_SIMPLE)
 	refCnts = refCnts[0] if imutils.is_cv2() else refCnts[1]
@@ -79,12 +83,14 @@ def findRegions(img):
 		if w > 5 and h > 15 and h<100 :
 			crop = img[y-20:y+h+20,x-20:x+w+20]
 
-			cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,0),1)
+			cv2.rectangle(imageCopy,(x,y),(x+w,y+h),(0,0,255),3)
 			np.unpackbits(crop)
 
 			if(crop.size):
 				wordImages.append(crop)
-
+	cv2.imshow("Regions",imageCopy)
+	cv2.waitKey(0)
+	cv2.imwrite("Thing.jpg",imageCopy)
 
 def findCharacters(img):
 	global cords
@@ -153,10 +159,10 @@ def guess(chars):
 	return answer
 
 def correctWords(a,b):
-    return SequenceMatcher(None, a, b).ratio()
+    return difflib.SequenceMatcher(None, b, a).ratio()
 
 image = cv2.imread(image2)
-image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
 
 height, width = image.shape[:2]
 if(height>1000 and width >1000):
@@ -164,8 +170,12 @@ if(height>1000 and width >1000):
     height=int(round(height*0.3))
 
 image = cv2.resize(image, (width,height))
-#cv2.imshow("Original",image)
-#cv2.waitKey(0)
+imageCopy = image.copy()
+image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+cv2.imshow("Original",image)
+cv2.waitKey(0)
+cv2.imwrite("copy.jpg",image)
+
 
 
 #guess(images,cords,cords1)
@@ -190,28 +200,34 @@ for i in range(len(wordCharacters)):
 		words.append(guess(wordCharacters[i]))
 
 itemsBought = []
-
+itemsBought.append("copy.jpg")
 for i in range(len(words)):
+
 	grouped = zip(cords[i],words[i])
 	sorting=sorted(grouped)
 	finalSorting = [point[1] for point in sorting]
-
+	print(''.join(finalSorting))
 	with open("items.txt", "r") as ifile:
 		for line in ifile:
-			if((correctWords(''.join(finalSorting),line))>0.35):
+
+			if((correctWords(''.join(finalSorting),line))>=0.35):
 				if line not in itemsBought:
 					itemsBought.append(line)
 total =0
 
-for i in itemsBought:
+for i in itemsBought[1:]:
 	[int(s) for y in i.split(' ') if y.isdigit() ]
 	total +=float(y)
-print("Items Purchased:\n")
-for i in itemsBought:
-	print(i)
-print("Total: R{:0.2f}\n".format(total))
-cv2.imshow("original",image)
-cv2.waitKey(0)
+
+itemsBought.append("Total: R{:0.2f}\n".format(total))
+f=open('itemsBought.txt','w')
+for items in itemsBought:
+    f.write(items+'\n')
+f.close()
+
+
+subprocess.Popen(["python", "gui2.py"])
+sys.exit(0)
 	#print(''.join(finalSorting))
 #for x in wordCharacters:
 #	print(guess(x))
