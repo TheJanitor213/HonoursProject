@@ -3,6 +3,7 @@ import tkFileDialog
 import ttk
 from tkFileDialog import askopenfilename
 import os
+from PIL import ImageTk, Image
 filename=''
 
 def input(*args):
@@ -14,14 +15,25 @@ def input(*args):
 
 
 def run():
-    os.system("python main.py "+ filename)
+	root.destroy()
+	os.system("python main.py "+ filename)
+
 root = Tk()
+root.configure(background='black')
 root.title("Image Processing")
 
 mainframe = ttk.Frame(root, padding="30 3 12 12")
 mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 mainframe.columnconfigure(0, weight=1)
 mainframe.rowconfigure(0, weight=1)
+path = "Pick-n-Pay-logo.png"
+img = ImageTk.PhotoImage(Image.open(path))
+
+#The Label widget is a standard Tkinter widget used to display a text or image on the screen.
+panel = ttk.Label(root, image = img)
+
+#The Pack geometry manager packs widgets in rows or columns.
+
 
 feet = StringVar()
 meters = StringVar()
