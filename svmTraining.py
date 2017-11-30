@@ -23,6 +23,7 @@ import cPickle
 
 svmTrain = []
 
+#Terrible coding over here
 X,Y = [],[]
 B=[]
 C=[]
@@ -62,6 +63,7 @@ def list_filesTrain(dir,array):
 
 
 list_filesTrain("/home/bruce/Documents/honours/imageProccesing/characters",B)
+
 
 def list_filesTest(dir,array):
     global C
